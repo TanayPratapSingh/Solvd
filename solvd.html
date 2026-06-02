@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Solvd is one workspace to post a problem, fund a bounty, review every solution built for it, discuss the trade-offs, and track which solution gets adopted.">
+<title>Solvd: problems in, validated solutions out</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&family=Spline+Sans+Mono:wght@400;500&family=Inter+Tight:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#f4f2ec; --surface:#fbfaf6; --ink:#1a1916; --ink-soft:#54514a;
+  --ink-faint:#8d8a80; --line:rgba(26,25,22,.12); --line-soft:rgba(26,25,22,.07);
+  --accent:#c2502c; --accent-soft:#e8d9cf; --green:#3b6d11; --green-soft:#e7efd9;
+  --serif:"Newsreader",Georgia,serif; --sans:"Inter Tight",system-ui,sans-serif;
+  --mono:"Spline Sans Mono",monospace; --maxw:1060px;
+}
+html[data-theme="dark"]{
+  --bg:#13120f; --surface:#1c1a16; --ink:#f0ede4; --ink-soft:#b3afa3;
+  --ink-faint:#7c786c; --line:rgba(240,237,228,.13); --line-soft:rgba(240,237,228,.07);
+  --accent:#e07a4f; --accent-soft:#3a2419; --green:#9bc758; --green-soft:#243016;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);
+  font-size:15px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  transition:background .35s ease,color .35s ease}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px}
+::selection{background:var(--accent);color:var(--bg)}
+
+nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%,transparent);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.nav-in{display:flex;align-items:center;justify-content:space-between;height:58px}
+.brand{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.01em;display:flex;align-items:center;gap:9px}
+.brand .dot{width:8px;height:8px;border-radius:50%;background:var(--accent);display:inline-block}
+.nav-links{display:flex;gap:28px;align-items:center}
+.nav-links a{font-size:13px;color:var(--ink-soft);letter-spacing:.01em;transition:color .2s}
+.nav-links a:hover{color:var(--ink)}
+.nav-actions{display:flex;gap:12px;align-items:center}
+.theme-btn{background:none;border:1px solid var(--line);border-radius:999px;width:32px;height:32px;
+  cursor:pointer;color:var(--ink-soft);font-size:13px;display:grid;place-items:center;transition:all .2s}
+.theme-btn:hover{border-color:var(--ink-soft);color:var(--ink)}
+.cta-sm{font-size:13px;padding:7px 15px;border:1px solid var(--ink);border-radius:999px;
+  font-weight:500;transition:all .2s}
+.cta-sm:hover{background:var(--ink);color:var(--bg)}
+.burger{display:none;background:none;border:none;font-size:20px;color:var(--ink);cursor:pointer}
+@media(max-width:760px){.nav-links{display:none}.burger{display:block}}
+
+header{padding:66px 0 50px;position:relative;overflow:hidden}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:20px;display:flex;align-items:center;gap:10px}
+.eyebrow::before{content:"";width:26px;height:1px;background:var(--accent)}
+h1.hero{font-family:var(--serif);font-weight:400;font-size:clamp(38px,6vw,70px);
+  line-height:1.03;letter-spacing:-.025em;max-width:15ch}
+h1.hero em{font-style:italic;color:var(--accent)}
+.hero-sub{font-size:17px;color:var(--ink-soft);max-width:50ch;margin-top:22px;line-height:1.5}
+.hero-cta{display:flex;gap:12px;margin-top:30px;flex-wrap:wrap}
+.btn-primary{background:var(--ink);color:var(--bg);padding:12px 24px;border-radius:999px;
+  font-weight:500;font-size:14px;border:1px solid var(--ink);transition:all .25s;cursor:pointer}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-ghost{padding:12px 24px;border-radius:999px;border:1px solid var(--line);
+  font-weight:500;font-size:14px;color:var(--ink-soft);transition:all .25s;cursor:pointer;background:none}
+.btn-ghost:hover{border-color:var(--ink);color:var(--ink)}
+.hero-stats{display:flex;gap:42px;margin-top:48px;flex-wrap:wrap;
+  border-top:1px solid var(--line);padding-top:26px}
+.stat .num{font-family:var(--serif);font-size:30px;font-weight:500;letter-spacing:-.02em}
+.stat .lbl{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--ink-faint);margin-top:3px}
+.hero-bg{position:absolute;right:-110px;top:30px;width:460px;height:460px;opacity:.45;pointer-events:none;z-index:-1}
+
+section{padding:60px 0;border-top:1px solid var(--line-soft)}
+.sec-head{margin-bottom:38px}
+.sec-tag{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:13px}
+.sec-title{font-family:var(--serif);font-weight:400;font-size:clamp(26px,3.6vw,38px);
+  letter-spacing:-.02em;line-height:1.1;max-width:20ch}
+.sec-title em{font-style:italic;color:var(--accent)}
+.sec-desc{color:var(--ink-soft);max-width:58ch;margin-top:14px;font-size:15.5px}
+
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);
+  border-radius:14px;overflow:hidden;background:var(--surface)}
+.step{padding:26px 22px;border-right:1px solid var(--line);position:relative}
+.step:last-child{border-right:none}
+.step .n{font-family:var(--mono);font-size:11.5px;color:var(--accent);margin-bottom:14px}
+.step h3{font-family:var(--serif);font-size:19px;font-weight:500;margin-bottom:7px;letter-spacing:-.01em}
+.step p{font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+@media(max-width:760px){.steps{grid-template-columns:1fr}.step{border-right:none;border-bottom:1px solid var(--line)}.step:last-child{border-bottom:none}}
+
+.demo{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;
+  box-shadow:0 20px 50px -28px rgba(26,25,22,.22)}
+.demo-bar{display:flex;align-items:center;gap:7px;padding:11px 16px;border-bottom:1px solid var(--line);background:var(--bg)}
+.demo-bar .d{width:10px;height:10px;border-radius:50%;background:var(--line)}
+.demo-bar .url{margin-left:12px;font-family:var(--mono);font-size:11.5px;color:var(--ink-faint)}
+.demo-body{display:grid;grid-template-columns:196px 1fr 244px;min-height:412px}
+.col-probs{border-right:1px solid var(--line);overflow-y:auto;max-height:412px}
+.col-probs .ph{padding:13px 15px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-faint);border-bottom:1px solid var(--line-soft)}
+.prob{padding:12px 15px;border-bottom:1px solid var(--line-soft);cursor:pointer;transition:background .15s}
+.prob:hover{background:var(--bg)}
+.prob.on{background:var(--accent-soft)}
+.prob .pt{font-size:12.5px;font-weight:500;line-height:1.35;margin-bottom:5px}
+.prob.on .pt{color:var(--accent)}
+.prob .pm{font-size:10.5px;color:var(--ink-faint);display:flex;gap:9px;font-family:var(--mono)}
+.col-main{padding:18px;overflow-y:auto;max-height:412px}
+.bounty{display:inline-flex;align-items:center;gap:6px;background:var(--green-soft);color:var(--green);
+  font-family:var(--mono);font-size:11.5px;font-weight:500;padding:5px 11px;border-radius:999px;margin-bottom:13px}
+.col-main h4{font-family:var(--serif);font-size:20px;font-weight:500;letter-spacing:-.01em;line-height:1.2}
+.col-main .pd{font-size:13px;color:var(--ink-soft);margin:9px 0 8px;line-height:1.5}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px}
+.tag{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);border:1px solid var(--line);
+  padding:3px 9px;border-radius:999px}
+.sol-h{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:11px;display:flex;justify-content:space-between}
+.sol{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:13px;margin-bottom:10px;
+  cursor:pointer;transition:border-color .2s}
+.sol:hover{border-color:var(--ink-soft)}
+.sol-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:7px}
+.sol-title{font-size:13.5px;font-weight:600;line-height:1.3;display:flex;gap:7px;align-items:center}
+.verified{font-family:var(--mono);font-size:9px;background:var(--green-soft);color:var(--green);
+  padding:2px 7px;border-radius:999px;letter-spacing:.04em}
+.vote{display:flex;flex-direction:column;align-items:center;gap:1px;flex-shrink:0}
+.vbtn{background:none;border:1px solid var(--line);border-radius:7px;width:29px;height:23px;cursor:pointer;
+  color:var(--ink-faint);display:grid;place-items:center;font-size:10px;transition:all .15s}
+.vbtn:hover{border-color:var(--accent);color:var(--accent)}
+.vbtn.up{background:var(--accent);color:var(--bg);border-color:var(--accent)}
+.vcount{font-size:12.5px;font-weight:600}
+.sol-desc{font-size:12px;color:var(--ink-soft);line-height:1.5;margin-bottom:9px}
+.sol-foot{display:flex;align-items:center;gap:7px;font-size:10.5px;color:var(--ink-faint)}
+.av{width:18px;height:18px;border-radius:50%;display:grid;place-items:center;font-size:8px;font-weight:600}
+.av-1{background:#9FE1CB;color:#085041}.av-2{background:#B5D4F4;color:#0C447C}
+.av-3{background:#CECBF6;color:#3C3489}.av-4{background:#FAC775;color:#633806}
+.outcome{font-family:var(--mono);font-size:10px;color:var(--green);margin-left:auto}
+.col-disc{border-left:1px solid var(--line);display:flex;flex-direction:column;max-height:412px}
+.disc-h{padding:12px 14px;border-bottom:1px solid var(--line-soft)}
+.disc-h .dt{font-size:12.5px;font-weight:600}
+.disc-h .ds{font-size:10.5px;color:var(--ink-faint);font-family:var(--mono)}
+.disc-msgs{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:11px}
+.msg{display:flex;gap:8px}
+.msg .mb{flex:1}
+.msg .ma{font-size:10.5px;font-weight:600;margin-bottom:3px}
+.msg .ma span{color:var(--ink-faint);font-weight:400;margin-left:5px;font-family:var(--mono);font-size:9px}
+.msg .mt{font-size:11.5px;color:var(--ink-soft);line-height:1.45;background:var(--bg);padding:8px 10px;
+  border-radius:4px 10px 10px 10px;border:1px solid var(--line-soft)}
+.disc-in{padding:10px 13px;border-top:1px solid var(--line-soft);display:flex;gap:8px;align-items:center}
+.disc-in input{flex:1;background:var(--bg);border:1px solid var(--line);border-radius:999px;
+  padding:7px 12px;font-size:12px;color:var(--ink);font-family:var(--sans);outline:none}
+.disc-in input:focus{border-color:var(--ink-soft)}
+.disc-in button{background:var(--ink);color:var(--bg);border:none;width:30px;height:30px;border-radius:50%;
+  cursor:pointer;display:grid;place-items:center;font-size:12px;flex-shrink:0}
+@media(max-width:880px){.demo-body{grid-template-columns:1fr}.col-probs,.col-disc{display:none}}
+
+.feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.feat{background:var(--surface);padding:26px 22px;transition:background .2s}
+.feat:hover{background:var(--bg)}
+.feat .fk{font-family:var(--mono);font-size:11px;color:var(--accent);margin-bottom:12px;letter-spacing:.04em}
+.feat h3{font-family:var(--serif);font-size:18px;font-weight:500;margin-bottom:7px;letter-spacing:-.01em}
+.feat p{font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+@media(max-width:760px){.feat-grid{grid-template-columns:1fr}}
+
+.moat{display:grid;grid-template-columns:1fr 1fr;gap:50px;align-items:center}
+.moat-list{display:flex;flex-direction:column;gap:0}
+.moat-item{padding:20px 0;border-bottom:1px solid var(--line-soft)}
+.moat-item:first-child{padding-top:0}
+.moat-item h4{font-size:15.5px;font-weight:600;margin-bottom:6px;display:flex;align-items:center;gap:10px}
+.moat-item h4 .mn{font-family:var(--mono);font-size:11.5px;color:var(--accent)}
+.moat-item p{font-size:14px;color:var(--ink-soft);line-height:1.5;padding-left:28px}
+.moat-visual{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:30px;
+  font-family:var(--mono);font-size:12.5px}
+.flow-node{padding:12px 15px;border:1px solid var(--line);border-radius:9px;background:var(--bg);
+  text-align:center;position:relative}
+.flow-node.a{border-color:var(--accent);color:var(--accent)}
+.flow-node.g{border-color:var(--green);color:var(--green)}
+.flow-arrow{text-align:center;color:var(--ink-faint);font-size:15px;padding:6px 0}
+.flow-cap{font-size:11px;color:var(--ink-faint);text-align:center;margin-top:16px;line-height:1.5}
+@media(max-width:760px){.moat{grid-template-columns:1fr;gap:32px}}
+
+.tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.tier{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:26px 22px;
+  display:flex;flex-direction:column}
+.tier.feat-tier{border:1.5px solid var(--accent);position:relative}
+.tier-badge{position:absolute;top:-10px;left:22px;background:var(--accent);color:var(--bg);
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:999px}
+.tier h3{font-family:var(--serif);font-size:20px;font-weight:500;margin-bottom:5px}
+.tier .price{font-family:var(--serif);font-size:34px;font-weight:500;letter-spacing:-.02em;margin:7px 0 2px}
+.tier .price span{font-size:13px;color:var(--ink-faint);font-family:var(--sans)}
+.tier .pdesc{font-size:12.5px;color:var(--ink-soft);margin-bottom:18px;min-height:36px}
+.tier ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:22px;flex:1}
+.tier li{font-size:13px;color:var(--ink-soft);display:flex;gap:9px;align-items:flex-start;line-height:1.4}
+.tier li b{color:var(--green);font-weight:600;flex-shrink:0}
+.tier button{width:100%;padding:11px;border-radius:999px;font-weight:500;font-size:13.5px;cursor:pointer;
+  border:1px solid var(--ink);background:none;color:var(--ink);transition:all .2s}
+.tier button:hover{background:var(--ink);color:var(--bg)}
+.tier.feat-tier button{background:var(--accent);border-color:var(--accent);color:var(--bg)}
+.tier.feat-tier button:hover{opacity:.88}
+@media(max-width:760px){.tiers{grid-template-columns:1fr}}
+
+.band{background:var(--ink);color:var(--bg);border-radius:18px;padding:54px 44px;text-align:center}
+.band h2{font-family:var(--serif);font-weight:400;font-size:clamp(26px,4vw,42px);letter-spacing:-.02em;line-height:1.1;max-width:20ch;margin:0 auto}
+.band h2 em{font-style:italic;color:var(--accent)}
+.band p{color:rgba(255,255,255,.7);margin:16px auto 0;max-width:50ch;font-size:15px}
+.band .b-cta{margin-top:28px;display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.band .btn-light{background:var(--bg);color:var(--ink);padding:12px 26px;border-radius:999px;
+  font-weight:500;font-size:14px;border:none;cursor:pointer;transition:transform .2s}
+.band .btn-light:hover{transform:translateY(-2px)}
+.band .btn-outline{background:none;border:1px solid rgba(255,255,255,.3);color:var(--bg);
+  padding:12px 26px;border-radius:999px;font-weight:500;font-size:14px;cursor:pointer;transition:border-color .2s}
+.band .btn-outline:hover{border-color:var(--bg)}
+
+footer{padding:46px 0 34px;border-top:1px solid var(--line)}
+.foot-top{display:flex;justify-content:space-between;flex-wrap:wrap;gap:28px;margin-bottom:34px}
+.foot-brand{max-width:32ch}
+.foot-brand .brand{margin-bottom:11px}
+.foot-brand p{font-size:13.5px;color:var(--ink-soft);line-height:1.5}
+.foot-cols{display:flex;gap:54px;flex-wrap:wrap}
+.foot-col h5{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:13px}
+.foot-col a{display:block;font-size:13.5px;color:var(--ink-soft);margin-bottom:9px;transition:color .2s}
+.foot-col a:hover{color:var(--ink)}
+.foot-bot{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  padding-top:24px;border-top:1px solid var(--line-soft);font-size:12.5px;color:var(--ink-faint)}
+
+.reveal{opacity:0;transform:translateY(20px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap nav-in">
+    <a href="#top" class="brand"><span class="dot"></span>Solvd</a>
+    <div class="nav-links">
+      <a href="#how">How it works</a>
+      <a href="#explore">Workspace</a>
+      <a href="#features">Features</a>
+      <a href="#why">Defensibility</a>
+      <a href="#pricing">Pricing</a>
+    </div>
+    <div class="nav-actions">
+      <button class="theme-btn" id="theme" aria-label="Toggle theme">D</button>
+      <a href="#explore" class="cta-sm">Get started</a>
+      <button class="burger" id="burger" aria-label="Menu">=</button>
+    </div>
+  </div>
+</nav>
+
+<header id="top">
+  <div class="wrap">
+    <svg class="hero-bg" viewBox="0 0 200 200" fill="none">
+      <circle cx="100" cy="100" r="60" stroke="var(--accent)" stroke-width=".5" opacity=".4"/>
+      <circle cx="100" cy="100" r="90" stroke="var(--ink-faint)" stroke-width=".5" opacity=".25"/>
+      <circle cx="100" cy="100" r="30" stroke="var(--accent)" stroke-width=".5" opacity=".5"/>
+    </svg>
+    <div class="eyebrow">A workspace for collective problem-solving</div>
+    <h1 class="hero">Problems in. <em>Validated</em> solutions out.</h1>
+    <p class="hero-sub">Solvd is one place to post a real problem, fund it with a bounty, review every solution built against it, debate the trade-offs, and track which solution gets adopted.</p>
+    <div class="hero-cta">
+      <button class="btn-primary" onclick="scrollTo2('#explore')">Explore the workspace</button>
+      <button class="btn-ghost" onclick="scrollTo2('#how')">See how it works</button>
+    </div>
+    <div class="hero-stats">
+      <div class="stat"><div class="num">2,418</div><div class="lbl">Problems posted</div></div>
+      <div class="stat"><div class="num">11,902</div><div class="lbl">Solutions built</div></div>
+      <div class="stat"><div class="num">$1.4M</div><div class="lbl">Bounties paid</div></div>
+      <div class="stat"><div class="num">63%</div><div class="lbl">Adoption rate</div></div>
+    </div>
+  </div>
+</header>
+
+<section id="how" class="reveal">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">The loop</div>
+      <h2 class="sec-title">Four steps from a stuck problem to a proven fix.</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="n">01</div><h3>Post</h3><p>Frame a real, unsolved problem with its context and constraints. Attach an optional bounty to draw the right builders.</p></div>
+      <div class="step"><div class="n">02</div><h3>Build</h3><p>Contributors propose and prototype solutions in a shared workspace, with code, designs, or written approaches side by side.</p></div>
+      <div class="step"><div class="n">03</div><h3>Discuss</h3><p>Each solution carries its own thread. The community votes, stress-tests, and refines until the strongest approaches surface.</p></div>
+      <div class="step"><div class="n">04</div><h3>Adopt</h3><p>The poster marks what shipped. Verified outcomes turn opinion into data and release the bounty to whoever earned it.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="explore" class="reveal">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Live workspace</div>
+      <h2 class="sec-title">One screen. Every solution. The full debate.</h2>
+      <p class="sec-desc">Pick a problem on the left, weigh the solutions in the middle, and follow the discussion on the right. Vote, switch problems, and post a comment to try it.</p>
+    </div>
+    <div class="demo">
+      <div class="demo-bar"><span class="d"></span><span class="d"></span><span class="d"></span><span class="url">solvd.io/p/reduce-urban-food-waste</span></div>
+      <div class="demo-body">
+        <div class="col-probs" id="probList"></div>
+        <div class="col-main" id="mainCol"></div>
+        <div class="col-disc">
+          <div class="disc-h"><div class="dt" id="discTitle">Discussion</div><div class="ds" id="discSub"></div></div>
+          <div class="disc-msgs" id="discMsgs"></div>
+          <div class="disc-in"><input id="msgIn" placeholder="Add a comment"><button id="sendBtn" aria-label="Send">&rarr;</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="features" class="reveal">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">What sets it apart</div>
+      <h2 class="sec-title">Not a forum. A system for getting things solved.</h2>
+    </div>
+    <div class="feat-grid">
+      <div class="feat"><div class="fk">01</div><h3>Funded bounties</h3><p>Posters escrow a reward that the platform releases to the adopted solution. Real money aligns real effort.</p></div>
+      <div class="feat"><div class="fk">02</div><h3>Verified outcomes</h3><p>Every adoption is recorded with its result, so the winning solution is proven rather than merely upvoted.</p></div>
+      <div class="feat"><div class="fk">03</div><h3>Solver reputation</h3><p>A portable, public record of solutions that worked, usable as a hiring and credibility signal.</p></div>
+      <div class="feat"><div class="fk">04</div><h3>AI synthesis</h3><p>Near-duplicate solutions are clustered and summarized automatically, surfacing genuine consensus from noise.</p></div>
+      <div class="feat"><div class="fk">05</div><h3>Build workspace</h3><p>Prototype the real thing by attaching code, docs, or designs instead of describing an idea in prose.</p></div>
+      <div class="feat"><div class="fk">06</div><h3>Private team spaces</h3><p>Run the same loop internally. Teams post their own problems to a vetted, NDA-bound talent pool.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="why" class="reveal">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Defensibility</div>
+      <h2 class="sec-title">The moat is the data, not the chatter.</h2>
+    </div>
+    <div class="moat">
+      <div class="moat-list">
+        <div class="moat-item"><h4><span class="mn">01</span>Owns the outcome graph</h4><p>Every solved problem adds a record of which solutions were tried, which won, and why. Over time this becomes a knowledge base no competitor holds.</p></div>
+        <div class="moat-item"><h4><span class="mn">02</span>Solves the cold start</h4><p>Bounty-funded problems attract solvers from day one. We launch narrow, in one vertical, and seed it manually rather than opening to problems in general.</p></div>
+        <div class="moat-item"><h4><span class="mn">03</span>Compounding network effects</h4><p>More solved problems attract more solvers, and more solvers attract more posters. Each loop makes the next one easier.</p></div>
+        <div class="moat-item"><h4><span class="mn">04</span>Quality stays high</h4><p>Reputation-weighted voting, automated deduplication, and verified-outcome badges keep spam and duplicate noise out of the way.</p></div>
+      </div>
+      <div class="moat-visual">
+        <div class="flow-node a">Problem plus bounty</div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node">N solutions built</div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node">Discussed, voted, refined</div>
+        <div class="flow-arrow">&darr;</div>
+        <div class="flow-node g">Adopted and verified</div>
+        <div class="flow-cap">Each completed loop is a permanent, searchable record. That accumulated dataset is the asset.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing" class="reveal">
+  <div class="wrap">
+    <div class="sec-head">
+      <div class="sec-tag">Pricing</div>
+      <h2 class="sec-title">Free to solve. Pay only when it works.</h2>
+      <p class="sec-desc">Solvers never pay. Revenue comes from a take-rate on paid bounties and from teams running the loop privately.</p>
+    </div>
+    <div class="tiers">
+      <div class="tier">
+        <h3>Community</h3>
+        <div class="price">$0<span> / forever</span></div>
+        <p class="pdesc">For anyone posting public problems or building solutions.</p>
+        <ul>
+          <li><b>+</b>Unlimited public problems</li>
+          <li><b>+</b>Solution workspace and discussion</li>
+          <li><b>+</b>Public solver reputation</li>
+          <li><b>+</b>Optional bounties at 8% fee</li>
+        </ul>
+        <button>Start free</button>
+      </div>
+      <div class="tier feat-tier">
+        <span class="tier-badge">Most popular</span>
+        <h3>Team</h3>
+        <div class="price">$49<span> / seat / mo</span></div>
+        <p class="pdesc">Run the same loop privately inside your organization.</p>
+        <ul>
+          <li><b>+</b>Private problem spaces</li>
+          <li><b>+</b>Vetted, NDA-bound solver pool</li>
+          <li><b>+</b>AI synthesis and deduplication</li>
+          <li><b>+</b>Implementation tracking</li>
+          <li><b>+</b>Reduced 4% bounty fee</li>
+        </ul>
+        <button>Start trial</button>
+      </div>
+      <div class="tier">
+        <h3>Enterprise</h3>
+        <div class="price">Custom</div>
+        <p class="pdesc">For organizations running problem-solving at scale.</p>
+        <ul>
+          <li><b>+</b>SSO, audit logs, and SLAs</li>
+          <li><b>+</b>Talent sourcing from the solver pool</li>
+          <li><b>+</b>Outcome-data export and API</li>
+          <li><b>+</b>Dedicated success manager</li>
+        </ul>
+        <button>Contact sales</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="reveal">
+  <div class="wrap">
+    <div class="band">
+      <h2>Stop letting good problems sit <em>unsolved</em>.</h2>
+      <p>Post your first problem in two minutes, or browse what the community is already building.</p>
+      <div class="b-cta">
+        <button class="btn-light" onclick="scrollTo2('#explore')">Post a problem</button>
+        <button class="btn-outline" onclick="scrollTo2('#explore')">Browse solutions</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a href="#top" class="brand"><span class="dot"></span>Solvd</a>
+        <p>Where real problems meet validated solutions, and the record of what worked lives on.</p>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col"><h5>Product</h5><a href="#how">How it works</a><a href="#explore">Workspace</a><a href="#features">Features</a><a href="#pricing">Pricing</a></div>
+        <div class="foot-col"><h5>Company</h5><a href="#">About</a><a href="#">Manifesto</a><a href="#">Careers</a><a href="#">Blog</a></div>
+        <div class="foot-col"><h5>Connect</h5><a href="#">X</a><a href="#">LinkedIn</a><a href="#">GitHub</a><a href="#">Discord</a></div>
+      </div>
+    </div>
+    <div class="foot-bot"><span>© 2026 Solvd. A workspace for collective problem-solving.</span><span style="font-family:var(--mono)">Built to be adopted, not just discussed.</span></div>
+  </div>
+</footer>
+
+<script>
+const html=document.documentElement, tbtn=document.getElementById('theme');
+function setTheme(t){html.setAttribute('data-theme',t);tbtn.textContent=t==='dark'?'L':'D';}
+setTheme(window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light');
+tbtn.onclick=()=>setTheme(html.getAttribute('data-theme')==='dark'?'light':'dark');
+function scrollTo2(s){document.querySelector(s).scrollIntoView({behavior:'smooth'});}
+document.getElementById('burger').onclick=()=>scrollTo2('#how');
+
+const data=[
+ {id:1,title:"Reduce urban food waste",sols:24,comments:9,bounty:"$2,500",
+  desc:"Cities discard millions of meals daily. What practical system, whether technical, policy, or community led, cuts this most effectively at the neighborhood level?",
+  tags:["environment","urban","policy"],
+  solutions:[
+   {t:"Community fridge network",v:34,d:"Shared neighborhood refrigerators where locals donate and take surplus food freely. Berlin pilots showed roughly 30% block-level reduction.",a:"Priya K.",av:"av-1",ver:true,out:"adopted, 3 cities"},
+   {t:"Demand-predicting inventory",v:27,d:"Machine learning forecasts restaurant demand so kitchens order only what they use, cutting waste at the source rather than the bin.",a:"Marco L.",av:"av-2",ver:false,out:""},
+   {t:"Surplus rescue marketplace",v:19,d:"Lets eateries sell near-expiry food at a discount through an app instead of discarding it at close.",a:"Aisha R.",av:"av-3",ver:false,out:""}],
+  msgs:[
+   {a:"Priya K.",av:"av-1",t:"2h",x:"Community fridges work. The hard part is upkeep, not the idea, so each fridge needs a named owner."},
+   {a:"Dev S.",av:"av-4",t:"1h",x:"The inventory route needs small-owner buy-in. Cost is the real barrier there."},
+   {a:"Marco L.",av:"av-2",t:"45m",x:"Fair point. City grants subsidizing the tool could fix adoption."}]},
+ {id:2,title:"Fix remote team alignment",sols:18,comments:7,bounty:"$1,200",
+  desc:"Teams across timezones lose context and drown in meetings. What scalable async system keeps everyone aligned without adding more calls?",
+  tags:["productivity","remote","teams"],
+  solutions:[
+   {t:"Async video standups",v:41,d:"Short recorded check-ins replace live standups so people catch up on their own time, cutting timezone overhead sharply.",a:"Sam W.",av:"av-2",ver:true,out:"adopted, 40+ teams"},
+   {t:"Living team-OS doc",v:22,d:"A single source of truth for norms, decisions, and context that ends repeated questions.",a:"Lena M.",av:"av-3",ver:false,out:""}],
+  msgs:[
+   {a:"Sam W.",av:"av-2",t:"3h",x:"Recorded updates were a step change for us. Far less calendar overhead."},
+   {a:"Kenji T.",av:"av-4",t:"2h",x:"Our team-OS doc took a month to set up but now saves hours weekly."}]},
+ {id:3,title:"Make mental health support accessible",sols:31,comments:12,bounty:"$4,000",
+  desc:"Therapy is costly and stigmatized. What scalable, affordable model reaches more people without lowering the bar on quality?",
+  tags:["health","access","wellbeing"],
+  solutions:[
+   {t:"Trained peer-support circles",v:52,d:"Trained peer counselors run small online circles offering low-cost, structured listening at scale. Works best when paired with real training.",a:"Fatima O.",av:"av-1",ver:true,out:"adopted, 8 orgs"},
+   {t:"Employer wellness stipend",v:38,d:"A monthly budget employees spend on therapy, meditation, or wellness. Even a small amount moves the needle.",a:"Raj P.",av:"av-4",ver:false,out:""},
+   {t:"School-embedded counselors",v:29,d:"Places counselors directly in school timetables so seeking help early becomes normal rather than exceptional.",a:"Mei C.",av:"av-3",ver:false,out:""}],
+  msgs:[
+   {a:"Fatima O.",av:"av-1",t:"5h",x:"Peer support only works with proper training behind it, not goodwill alone."},
+   {a:"Raj P.",av:"av-4",t:"4h",x:"Stipends are underrated. $50 a month changes real behavior for a lot of people."}]}
+];
+
+let active=data[0], votes={};
+const probList=document.getElementById('probList'), mainCol=document.getElementById('mainCol');
+const discMsgs=document.getElementById('discMsgs'), discTitle=document.getElementById('discTitle'), discSub=document.getElementById('discSub');
+
+function initials(n){return n.split(' ').map(x=>x[0]).join('');}
+
+function renderProbs(){
+  probList.innerHTML='<div class="ph">Problems</div>'+data.map(p=>
+   `<div class="prob ${p.id===active.id?'on':''}" data-id="${p.id}">
+     <div class="pt">${p.title}</div>
+     <div class="pm"><span>${p.sols} sol</span><span>${p.comments} msg</span><span>${p.bounty}</span></div>
+   </div>`).join('');
+  probList.querySelectorAll('.prob').forEach(el=>el.onclick=()=>{active=data.find(d=>d.id==el.dataset.id);renderAll();});
+}
+function renderMain(){
+  const sorted=[...active.solutions].sort((a,b)=>(b.v+(votes[active.id+'-'+b.t]?1:0))-(a.v+(votes[active.id+'-'+a.t]?1:0)));
+  mainCol.innerHTML=
+   `<div class="bounty">${active.bounty} bounty</div>
+    <h4>${active.title}</h4>
+    <p class="pd">${active.desc}</p>
+    <div class="tags">${active.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    <div class="sol-h"><span>${active.solutions.length} solutions</span><span>sorted by votes</span></div>`+
+   sorted.map((s)=>{
+     const key=active.id+'-'+s.t, up=votes[key], n=s.v+(up?1:0);
+     return `<div class="sol">
+       <div class="sol-top">
+         <div class="sol-title">${s.t}${s.ver?'<span class="verified">verified</span>':''}</div>
+         <div class="vote"><button class="vbtn ${up?'up':''}" data-vote="${key}">&#9650;</button><span class="vcount">${n}</span></div>
+       </div>
+       <div class="sol-desc">${s.d}</div>
+       <div class="sol-foot"><span class="av ${s.av}">${initials(s.a)}</span>${s.a}${s.out?`<span class="outcome">${s.out}</span>`:''}</div>
+     </div>`;
+   }).join('');
+  mainCol.querySelectorAll('[data-vote]').forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.dataset.vote;votes[k]=!votes[k];renderMain();});
+}
+function renderDisc(){
+  discTitle.textContent='Discussion';
+  discSub.textContent=active.msgs.length+' comments';
+  discMsgs.innerHTML=active.msgs.map(m=>
+   `<div class="msg"><span class="av ${m.av}" style="width:23px;height:23px;font-size:9px;flex-shrink:0">${initials(m.a)}</span>
+     <div class="mb"><div class="ma">${m.a}<span>${m.t} ago</span></div><div class="mt">${m.x}</div></div></div>`).join('');
+  discMsgs.scrollTop=discMsgs.scrollHeight;
+}
+function renderAll(){renderProbs();renderMain();renderDisc();}
+renderAll();
+
+const msgIn=document.getElementById('msgIn'), sendBtn=document.getElementById('sendBtn');
+function send(){const v=msgIn.value.trim();if(!v)return;active.msgs.push({a:"You",av:"av-2",t:"now",x:v});msgIn.value='';renderDisc();}
+sendBtn.onclick=send;
+msgIn.addEventListener('keydown',e=>{if(e.key==='Enter')send();});
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
